@@ -17,11 +17,13 @@ jobs:
         run: |
           mkdir -p build
           
-          # Explicitly add the subdirectories to the include path
-          # This ensures the compiler finds OSK.h and IOService.h regardless of the root
+          # Explicitly add all header subdirectories to the include path
+          # This ensures the compiler finds OSK.h, IOService.h, and systm.h
           clang++ -target arm64-apple-macosx \
+            -I./headers \
             -I./headers/libkern \
             -I./headers/IOKit \
+            -I./headers/sys \
             -I./KunzitePMIC \
             -fno-exceptions -fno-rtti -O2 \
             -c KunzitePMIC/KunzitePMIC.cpp -o build/KunzitePMIC.o
