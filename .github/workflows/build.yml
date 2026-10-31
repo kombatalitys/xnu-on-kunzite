@@ -13,29 +13,35 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Toolchain
+      - name: Locate Kernel Headers
         run: |
-          echo "Configuring XNU Build Environment..."
-          # Get the SDK path dynamically
+          echo "Searching for OSK.h..."
+          # Search the entire SDK for the specific kernel header
           SDK_PATH=$(xcrun --show-sdk-path)
+          HEADER_PATH=$(find $SDK_PATH -name "OSK.h" | head -n 1)
+          
+          if [ -z "$HEADER_PATH" ]; then
+            echo "Error: Could not find OSK.h in SDK"
+            exit 1
+          fi
+          
+          # Extract the directory part of the path
+          INCLUDE_DIR=$(dirname "$HEADER_PATH")
+          echo "FOUND_INCLUDE_DIR=$INCLUDE_DIR" >> $GITHUB_ENV
           echo "SDK_PATH=$SDK_PATH" >> $GITHUB_ENV
-          xcode-select -p
 
       - name: Compile KunzitePMIC Driver
         run: |
           mkdir -p build
           
-          # We must point to the SDK's kernel headers.
-          # For XNU drivers, we typically need the SDK's include directory.
-          # We use -isysroot to tell clang where the system root is.
-          
+          # We add the explicitly found INCLUDE_DIR and the standard SDK root
           clang++ -target arm64-apple-macosx \
             -isysroot $SDK_PATH \
+            -I$FOUND_INCLUDE_DIR \
             -I./KunzitePMIC \
             -fno-exceptions -fno-rtti -O2 \
             -c KunzitePMIC/KunzitePMIC.cpp -o build/KunzitePMIC.o
           
-          # Linking the object file into a kernel extension binary
           ld -o build/KunzitePMIC.kext build/KunzitePMIC.o -L$SDK_PATH/usr/lib
 
       - name: Upload Artifact
