@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 
 // Basic XNU Kernel Types
 typedef uint32_t OSSize;
