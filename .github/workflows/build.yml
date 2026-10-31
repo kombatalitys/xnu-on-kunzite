@@ -17,20 +17,21 @@ jobs:
         run: |
           mkdir -p build
           
-          # Compile the driver logic
+          # Using absolute path via GITHUB_WORKSPACE to eliminate all ambiguity
+          # We point directly to the 'include' folder where OSK.h and IOService.h live
           clang++ -target arm64-apple-macosx \
-            -I./headers \
-            -I./KunzitePMIC \
+            -I"$GITHUB_WORKSPACE/include" \
+            -I"$GITHUB_WORKSPACE/KunzitePMIC" \
             -fno-exceptions -fno-rtti -O2 \
             -c KunzitePMIC/KunzitePMIC.cpp -o build/KunzitePMIC.o
           
-          # Compile the stubs to resolve missing symbols
+          # Compile the stubs
           clang++ -target arm64-apple-macosx \
-            -I./headers \
+            -I"$GITHUB_WORKSPACE/include" \
             -fno-exceptions -fno-rtti -O2 \
             -c stubs.cpp -o build/stubs.o
           
-          # Link both object files into the final kext binary
+          # Link the final kext binary
           ld -o build/KunzitePMIC.kext build/KunzitePMIC.o build/stubs.o
 
       - name: Upload Artifact
