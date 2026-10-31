@@ -4,7 +4,7 @@
 OSDefineDefaultStructs(KunzitePMIC, IOService, OSObject)
 
 bool KunzitePMIC::start(IOService* provider) {
-    if (!super::start(provider)) {
+    if (!IOService::start(provider)) {
         return false;
     }
 
@@ -47,7 +47,7 @@ void KunzitePMIC::stop(IOService* provider) {
         _pmicMap = nullptr;
     }
     IOLog("KunzitePMIC: Driver stopped\n");
-    super::stop(provider);
+    IOService::stop(provider);
 }
 
 bool KunzitePMIC::setPowerState(int state) {
