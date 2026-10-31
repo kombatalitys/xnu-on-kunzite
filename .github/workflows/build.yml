@@ -17,19 +17,15 @@ jobs:
         run: |
           mkdir -p build
           
-          # We use the local headers directory to satisfy the compiler.
-          # -Iheaders adds the root of our local headers.
-          # -fno-exceptions and -fno-rtti are mandatory for XNU kernel code.
-          
+          # Explicitly add the subdirectories to the include path
+          # This ensures the compiler finds OSK.h and IOService.h regardless of the root
           clang++ -target arm64-apple-macosx \
-            -I./headers \
+            -I./headers/libkern \
+            -I./headers/IOKit \
             -I./KunzitePMIC \
             -fno-exceptions -fno-rtti -O2 \
             -c KunzitePMIC/KunzitePMIC.cpp -o build/KunzitePMIC.o
           
-          # Linking the object file into a binary.
-          # Since we are providing our own headers, we link against the basic system libs
-          # to produce the object file, which will be loaded as a kext.
           ld -o build/KunzitePMIC.kext build/KunzitePMIC.o
 
       - name: Upload Artifact

@@ -1,10 +1,8 @@
 #ifndef KUNZITE_PMIC_HPP
 #define KUNZITE_PMIC_HPP
 
-#include <libkern/OSK.h>
-#include <IOKit/IOService.h>
-#include <IOKit/IOMemoryDescriptor.h>
-#include <IOKit/IOMemoryMap.h>
+#include "OSK.h"
+#include "IOService.h"
 
 /* 
  * KunzitePMIC: XNU Kernel Extension for Redmi Note 15 5G PMIC.
