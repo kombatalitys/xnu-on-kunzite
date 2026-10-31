@@ -51,7 +51,8 @@ void IOService::release() {
 // --- Global XNU Symbols ---
 // The linker often looks for these basic kernel logging/utility symbols
 extern "C" {
-    void IOLog(const char* fmt, ...) {
+    void kernel_log(const char* fmt, ...) {
         // No-op for the binary build
     }
 }
+
