@@ -10,6 +10,7 @@ class IOMemoryMap;
 class OSObject {
 public:
     virtual ~OSObject() {}
+    virtual void release();
 };
 
 // IOMemoryDescriptor handles physical memory mapping
