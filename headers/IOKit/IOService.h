@@ -13,6 +13,7 @@ public:
 class IOMemoryDescriptor : public OSObject {
 public:
     static IOMemoryDescriptor* withPhysicalAddress(uintptr_t address, size_t size, uint32_t options);
+    virtual IOMemoryMap* map();
     virtual void release();
 };
 
