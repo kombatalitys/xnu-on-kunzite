@@ -3,6 +3,9 @@
 
 #include "OSK.h"
 
+// Forward declarations to resolve ordering issues
+class IOMemoryMap;
+
 // Base class for all IOKit objects
 class OSObject {
 public:
