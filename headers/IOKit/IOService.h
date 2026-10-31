@@ -1,7 +1,7 @@
 #ifndef _IOSERVICE_H
 #define _IOSERVICE_H
 
-#include "libkern/OSK.h"
+#include "OSK.h"
 
 // Base class for all IOKit objects
 class OSObject {
