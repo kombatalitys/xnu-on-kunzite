@@ -1,0 +1,41 @@
+name: Build XNU Driver
+
+on:
+  push:
+    branches: [ master, main ]
+  repository_dispatch:
+    types: [trigger-build]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Toolchain
+        run: |
+          echo "Configuring XNU Build Environment..."
+          # In a real scenario, we would point to the Xcode SDK
+          # For the prototype, we ensure the compiler is ready
+          xcode-select -p
+
+      - name: Compile KunzitePMIC Driver
+        run: |
+          mkdir -p build
+          # Using clang to compile the Kext
+          # We use -fno-exceptions and -fno-rtti because XNU kernel doesn't support them
+          clang++ -target arm64-apple-macosx \
+            -I./KunzitePMIC \
+            -fno-exceptions -fno-rtti -O2 \
+            -c KunzitePMIC/KunzitePMIC.cpp -o build/KunzitePMIC.o
+          
+          # Link the object file into a kernel extension binary
+          # Note: In a full setup, we would use the 'kextutil' or a specialized linker script
+          ld -o build/KunzitePMIC.kext build/KunzitePMIC.o -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kunzite-drivers
+          path: build/*.kext
