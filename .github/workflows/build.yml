@@ -17,18 +17,21 @@ jobs:
         run: |
           mkdir -p build
           
-          # Explicitly add all header subdirectories to the include path
-          # This ensures the compiler finds OSK.h, IOService.h, and systm.h
+          # Compile the driver logic
           clang++ -target arm64-apple-macosx \
             -I./headers \
-            -I./headers/libkern \
-            -I./headers/IOKit \
-            -I./headers/sys \
             -I./KunzitePMIC \
             -fno-exceptions -fno-rtti -O2 \
             -c KunzitePMIC/KunzitePMIC.cpp -o build/KunzitePMIC.o
           
-          ld -o build/KunzitePMIC.kext build/KunzitePMIC.o
+          # Compile the stubs to resolve missing symbols
+          clang++ -target arm64-apple-macosx \
+            -I./headers \
+            -fno-exceptions -fno-rtti -O2 \
+            -c stubs.cpp -o build/stubs.o
+          
+          # Link both object files into the final kext binary
+          ld -o build/KunzitePMIC.kext build/KunzitePMIC.o build/stubs.o
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
