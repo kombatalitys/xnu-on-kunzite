@@ -1,26 +1,24 @@
 #include "IOKit/IOService.h"
+#include <cstdlib>
 #include <iostream>
-#include <vector>
 
 /*
- * stubs.cpp: Comprehensive symbol provider for XNU kernel drivers.
- * We implement the base OSObject and IOKit methods to ensure the linker
- * can produce a binary on the build runner.
+ * stubs.cpp: The "Symbol Blanket".
+ * XNU kernels do not use standard libc malloc/free. They use a specialized 
+ * kernel heap manager (zalloc/kalloc). Because we are linking a standalone
+ * binary, we provide these symbols to satisfy the linker.
  */
 
 // --- OSObject Stubs ---
-void OSObject::release() {
-    // Dummy release
-}
+void OSObject::release() { }
+void OSObject::retain() { }
 
 // --- IOMemoryDescriptor Stubs ---
 IOMemoryDescriptor* IOMemoryDescriptor::withPhysicalAddress(uintptr_t address, size_t size, uint32_t options) {
     return (IOMemoryDescriptor*)0xDEADBEEF;
 }
 
-void IOMemoryDescriptor::release() {
-    // Dummy release
-}
+void IOMemoryDescriptor::release() { }
 
 IOMemoryMap* IOMemoryDescriptor::map() {
     return (IOMemoryMap*)0xCAFEBABE;
@@ -31,28 +29,22 @@ void* IOMemoryMap::getVirtualAddress() {
     return (void*)0xFEEDFACE;
 }
 
-void IOMemoryMap::release() {
-    // Dummy release
-}
+void IOMemoryMap::release() { }
 
 // --- IOService Stubs ---
-bool IOService::start(IOService* provider) {
-    return true;
-}
+bool IOService::start(IOService* provider) { return true; }
+void IOService::stop(IOService* provider) { }
+void IOService::release() { }
 
-void IOService::stop(IOService* provider) {
-    // Dummy stop
-}
-
-void IOService::release() {
-    // Dummy release
-}
-
-// --- Global XNU Symbols ---
-// The linker often looks for these basic kernel logging/utility symbols
+// --- Global XNU Kernel Symbols ---
 extern "C" {
-    void kernel_log(const char* fmt, ...) {
-        // No-op for the binary build
-    }
+    // Kernel Logging
+    void IOLog(const char* fmt, ...) { }
+    
+    // Kernel Memory Management (The "Apple malloc/free")
+    void* IOMalloc(size_t size) { return malloc(size); }
+    void IOFree(void* ptr, size_t size) { free(ptr); }
+    
+    // Basic XNU kernel entries
+    void __panic(const char* str) { while(1); }
 }
-
