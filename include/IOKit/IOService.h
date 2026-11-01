@@ -11,6 +11,7 @@ class OSObject {
 public:
     virtual ~OSObject() {}
     virtual void release();
+    virtual void retain();
 };
 
 // IOMemoryDescriptor handles physical memory mapping
