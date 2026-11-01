@@ -38,10 +38,13 @@ void IOService::release() { }
 
 // --- Global XNU Kernel Symbols ---
 extern "C" {
-    // Kernel Logging
-    void IOLog(const char* fmt, ...) { }
+    // Renaming IOLog to something completely unique to avoid any 
+    // possible clash with stdio's printf or other library symbols.
+    void xnu_kernel_log_stub(const char* fmt, ...) { 
+        // No-op for the binary build
+    }
     
-    // Kernel Memory Management (The "Apple malloc/free")
+    // Kernel Memory Management
     void* IOMalloc(size_t size) { return malloc(size); }
     void IOFree(void* ptr, size_t size) { free(ptr); }
     
