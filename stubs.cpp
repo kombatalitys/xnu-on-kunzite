@@ -4,14 +4,15 @@
 
 /*
  * stubs.cpp: The "Libc-Free" Symbol Blanket.
- * We remove all calls to malloc, free, and printf because those belong to 
- * user-space libc, and kernel extensions cannot link against libc.
+ * XNU kernels do not use standard libc malloc/free. They use a specialized 
+ * kernel heap manager (zalloc/kalloc). Because we are linking a standalone
+ * binary, we provide these symbols to satisfy the linker.
  */
 
 // --- OSObject Stubs ---
 void OSObject::release() { }
 void OSObject::retain() { }
-void OSObject::~OSObject() { } // Define destructor to satisfy __ZdlPv
+OSObject::~OSObject() { } // Fixed: removed 'void' return type
 
 // --- IOMemoryDescriptor Stubs ---
 IOMemoryDescriptor* IOMemoryDescriptor::withPhysicalAddress(uintptr_t address, size_t size, uint32_t options) {
@@ -35,7 +36,7 @@ void IOMemoryMap::release() { }
 bool IOService::start(IOService* provider) { return true; }
 void IOService::stop(IOService* provider) { }
 void IOService::release() { }
-void IOService::~IOService() { }
+IOService::~IOService() { } // Fixed: removed 'void' return type
 
 // --- Global XNU Kernel Symbols ---
 extern "C" {
