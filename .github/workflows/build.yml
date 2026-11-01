@@ -13,37 +13,29 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Debug Filesystem
-        run: |
-          echo "Listing include directory structure:"
-          ls -R $GITHUB_WORKSPACE/include
-
       - name: Compile KunzitePMIC Driver
         run: |
           mkdir -p build
           
-          # Use absolute paths and -I flags for every single directory level
-          # to ensure clang++ doesn't get confused by the directory structure
+          # We use -ffreestanding and -nostdlib to tell the compiler 
+          # that we are building a kernel object, not a standard app.
+          # This removes the implicit dependency on 'main' and libc.
+          
           clang++ -target arm64-apple-macosx \
             -I"$GITHUB_WORKSPACE/include" \
-            -I"$GITHUB_WORKSPACE/include/sys" \
-            -I"$GITHUB_WORKSPACE/include/libkern" \
-            -I"$GITHUB_WORKSPACE/include/IOKit" \
             -I"$GITHUB_WORKSPACE/KunzitePMIC" \
-            -fno-exceptions -fno-rtti -O2 \
+            -ffreestanding -fno-exceptions -fno-rtti -O2 \
             -c KunzitePMIC/KunzitePMIC.cpp -o build/KunzitePMIC.o
           
-          # Compile the stubs
+          # Compile the stubs with the same freestanding flags
           clang++ -target arm64-apple-macosx \
             -I"$GITHUB_WORKSPACE/include" \
-            -I"$GITHUB_WORKSPACE/include/sys" \
-            -I"$GITHUB_WORKSPACE/include/libkern" \
-            -I"$GITHUB_WORKSPACE/include/IOKit" \
-            -fno-exceptions -fno-rtti -O2 \
+            -ffreestanding -fno-exceptions -fno-rtti -O2 \
             -c stubs.cpp -o build/stubs.o
           
-          # Link the final kext binary
-          ld -o build/KunzitePMIC.kext build/KunzitePMIC.o build/stubs.o
+          # We use -r (relocatable) to prevent the linker from looking for 'main'
+          # This creates a kernel-compatible object binary.
+          ld -r -o build/KunzitePMIC.kext build/KunzitePMIC.o build/stubs.o
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
