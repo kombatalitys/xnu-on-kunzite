@@ -13,29 +13,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Compile KunzitePMIC Driver
+      - name: Compile Drivers
         run: |
           mkdir -p build
           
-          # We use -ffreestanding and -nostdlib to tell the compiler 
-          # that we are building a kernel object, not a standard app.
-          # This removes the implicit dependency on 'main' and libc.
+          # Compiler flags for XNU freestanding kernel extensions
+          FLAGS="-target arm64-apple-macosx -I$GITHUB_WORKSPACE/include -fno-exceptions -fno-rtti -O2"
           
-          clang++ -target arm64-apple-macosx \
-            -I"$GITHUB_WORKSPACE/include" \
-            -I"$GITHUB_WORKSPACE/KunzitePMIC" \
-            -ffreestanding -fno-exceptions -fno-rtti -O2 \
-            -c KunzitePMIC/KunzitePMIC.cpp -o build/KunzitePMIC.o
+          # 1. Compile PMIC Driver
+          clang++ $FLAGS -I$GITHUB_WORKSPACE/KunzitePMIC -c KunzitePMIC/KunzitePMIC.cpp -o build/KunzitePMIC.o
           
-          # Compile the stubs with the same freestanding flags
-          clang++ -target arm64-apple-macosx \
-            -I"$GITHUB_WORKSPACE/include" \
-            -ffreestanding -fno-exceptions -fno-rtti -O2 \
-            -c stubs.cpp -o build/stubs.o
+          # 2. Compile Haptics Driver
+          clang++ $FLAGS -I$GITHUB_WORKSPACE/KunziteHaptics -c KunziteHaptics/KunziteHaptics.cpp -o build/KunziteHaptics.o
           
-          # We use -r (relocatable) to prevent the linker from looking for 'main'
-          # This creates a kernel-compatible object binary.
-          ld -r -o build/KunzitePMIC.kext build/KunzitePMIC.o build/stubs.o
+          # 3. Compile the stubs
+          clang++ $FLAGS -c stubs.cpp -o build/stubs.o
+          
+          # Link all object files into a single relocatable kext binary
+          ld -r -o build/KunziteDrivers.kext build/KunzitePMIC.o build/KunziteHaptics.o build/stubs.o
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
