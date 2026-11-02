@@ -22,7 +22,7 @@ bool KunziteHaptics::start(IOService* provider) {
 
 void KunziteHaptics::stop(IOService* provider) {
     IOLog("KunziteHaptics: Stopping haptic driver\n");
-    super::stop(provider);
+    IOService::stop(provider);
 }
 
 void KunziteHaptics::triggerPulse() {
