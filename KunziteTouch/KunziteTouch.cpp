@@ -23,7 +23,7 @@ bool KunziteTouch::start(IOService* provider) {
 
 void KunziteTouch::stop(IOService* provider) {
     IOLog("KunziteTouch: Stopping touch driver\n");
-    super::stop(provider);
+    IOService::stop(provider);
 }
 
 bool KunziteTouch::readTouchCoords(int* x, int* y) {
