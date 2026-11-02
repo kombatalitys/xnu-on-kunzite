@@ -26,11 +26,14 @@ jobs:
           # 2. Compile Haptics Driver
           clang++ $FLAGS -I$GITHUB_WORKSPACE/KunziteHaptics -c KunziteHaptics/KunziteHaptics.cpp -o build/KunziteHaptics.o
           
-          # 3. Compile the stubs
+          # 3. Compile Display Driver
+          clang++ $FLAGS -I$GITHUB_WORKSPACE/KunziteDisplay -c KunziteDisplay/KunziteDisplay.cpp -o build/KunziteDisplay.o
+          
+          # 4. Compile the stubs
           clang++ $FLAGS -c stubs.cpp -o build/stubs.o
           
           # Link all object files into a single relocatable kext binary
-          ld -r -o build/KunziteDrivers.kext build/KunzitePMIC.o build/KunziteHaptics.o build/stubs.o
+          ld -r -o build/KunziteDrivers.kext build/KunzitePMIC.o build/KunziteHaptics.o build/KunziteDisplay.o build/stubs.o
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
