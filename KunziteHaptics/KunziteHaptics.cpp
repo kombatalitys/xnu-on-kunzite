@@ -4,7 +4,7 @@
 OSDefineDefaultStructs(KunziteHaptics, IOService, OSObject)
 
 bool KunziteHaptics::start(IOService* provider) {
-    if (!super::start(provider)) {
+    if (!IOService::start(provider)) {
         return false;
     }
 
