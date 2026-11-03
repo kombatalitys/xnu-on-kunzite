@@ -31,12 +31,15 @@ jobs:
           
           # 4. Compile Touch Driver
           clang++ $FLAGS -I$GITHUB_WORKSPACE/KunziteTouch -c KunziteTouch/KunziteTouch.cpp -o build/KunziteTouch.o
+
+          # 5. Compile Audio Driver
+          clang++ $FLAGS -I$GITHUB_WORKSPACE/KunziteAudio -c KunziteAudio/KunziteAudio.cpp -o build/KunziteAudio.o
           
-          # 5. Compile the stubs
+          # 6. Compile the stubs
           clang++ $FLAGS -c stubs.cpp -o build/stubs.o
           
           # Link all object files into a single relocatable kext binary
-          ld -r -o build/KunziteDrivers.kext build/KunzitePMIC.o build/KunziteHaptics.o build/KunziteDisplay.o build/KunziteTouch.o build/stubs.o
+          ld -r -o build/KunziteDrivers.kext build/KunzitePMIC.o build/KunziteHaptics.o build/KunziteDisplay.o build/KunziteTouch.o build/KunziteAudio.o build/stubs.o
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
